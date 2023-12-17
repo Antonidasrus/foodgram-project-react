@@ -10,42 +10,42 @@ class User(AbstractUser):
 
     email = models.EmailField(
         verbose_name='Email',
-        max_length=constants.MAX_EMAEL_LENGHT,
+        max_length=constants.MAX_EMAIL_LENGTH,
         unique=True,
         help_text='Введите адрес электронной почты.',
     )
     username = models.CharField(
         verbose_name='Ник',
-        max_length=constants.MAX_USER_LENGHT,
+        max_length=constants.MAX_USER_LENGTH,
         unique=True,
         help_text='Введите ник пользователя',
         validators=(
             validators.validate_username,
             validators.LatinCharRegexValidator(),
-            validators.TwoCharValidator(constants.MIN_TEXT_LENGHT),
+            validators.TwoCharValidator(constants.MIN_TEXT_LENGTH),
         )
     )
     first_name = models.CharField(
         verbose_name='Имя',
-        max_length=constants.MAX_USER_LENGHT,
+        max_length=constants.MAX_USER_LENGTH,
         help_text='Введите свое имя',
         validators=(
-            validators.TwoCharValidator(constants.MIN_TEXT_LENGHT),
+            validators.TwoCharValidator(constants.MIN_TEXT_LENGTH),
             validators.CyrillicCharRegexValidator(),
         )
     )
     last_name = models.CharField(
         verbose_name='Фамилия',
-        max_length=constants.MAX_USER_LENGHT,
+        max_length=constants.MAX_USER_LENGTH,
         help_text='Введите свою фамилию',
         validators=(
-            validators.TwoCharValidator(constants.MIN_TEXT_LENGHT),
+            validators.TwoCharValidator(constants.MIN_TEXT_LENGTH),
             validators.CyrillicCharRegexValidator(),
         )
     )
     password = models.CharField(
         verbose_name='Пароль',
-        max_length=constants.MAX_USER_LENGHT,
+        max_length=constants.MAX_USER_LENGTH,
         help_text='Введите свой пароль'
 
     )

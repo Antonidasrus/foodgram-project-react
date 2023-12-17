@@ -14,27 +14,27 @@ class Tag(models.Model):
 
     name = models.CharField(
         verbose_name='Название',
-        max_length=constants.MAX_NAME_SLUG_MEASUREMENT_UNIT_LENGHT,
+        max_length=constants.MAX_NAME_SLUG_MEASUREMENT_UNIT_LENGTH,
         unique=True,
         help_text='Придумай название для тега',
         validators=(
-            validators.TwoCharValidator(constants.MIN_TEXT_LENGHT),
+            validators.TwoCharValidator(constants.MIN_TEXT_LENGTH),
             validators.CyrillicCharRegexValidator(),
         )
     )
     color = ColorField(
         verbose_name='Цвет в HEX',
-        max_length=constants.MAX_TAG_COLOR_LENGHT,
+        max_length=constants.MAX_TAG_COLOR_LENGTH,
         help_text='Пропишите цвет в HEX формате',
         unique=True
     )
     slug = models.SlugField(
         verbose_name='Уникальный слаг',
-        max_length=constants.MAX_NAME_SLUG_MEASUREMENT_UNIT_LENGHT,
+        max_length=constants.MAX_NAME_SLUG_MEASUREMENT_UNIT_LENGTH,
         unique=True,
         help_text='Введите слаг тега',
         validators=(
-            validators.TwoCharValidator(constants.MIN_TEXT_LENGHT),
+            validators.TwoCharValidator(constants.MIN_TEXT_LENGTH),
             validators.LatinCharRegexValidator(),
         )
     )
@@ -56,19 +56,19 @@ class Ingredient(models.Model):
         db_index=True,
         verbose_name='Название ингредиента',
         help_text='Напишите название ингредиента',
-        max_length=constants.MAX_NAME_SLUG_MEASUREMENT_UNIT_LENGHT,
+        max_length=constants.MAX_NAME_SLUG_MEASUREMENT_UNIT_LENGTH,
         validators=(
-            validators.TwoCharValidator(constants.MIN_TEXT_LENGHT),
+            validators.TwoCharValidator(constants.MIN_TEXT_LENGTH),
             validators.CyrillicCharRegexValidator(),
         ),
     )
     measurement_unit = models.CharField(
         verbose_name='Единицы измерения',
-        max_length=constants.MAX_NAME_SLUG_MEASUREMENT_UNIT_LENGHT,
+        max_length=constants.MAX_NAME_SLUG_MEASUREMENT_UNIT_LENGTH,
         help_text='Введите единицу измерения',
         validators=(
             validators.MinMeasurementUnitLenghtValidator(
-                constants.MIN_MEASUREMENT_UNIT_LENGHT
+                constants.MIN_MEASUREMENT_UNIT_LENGTH
             ),
             validators.CyrillicCharRegexValidator()
         ),
@@ -105,11 +105,11 @@ class Recipe(models.Model):
     )
     name = models.CharField(
         verbose_name='Название',
-        max_length=constants.MAX_NAME_SLUG_MEASUREMENT_UNIT_LENGHT,
+        max_length=constants.MAX_NAME_SLUG_MEASUREMENT_UNIT_LENGTH,
         help_text='Придумайте название рецепта',
         validators=(
             validators.validate_recipe_name,
-            validators.TwoCharValidator(constants.MIN_TEXT_LENGHT),
+            validators.TwoCharValidator(constants.MIN_TEXT_LENGTH),
         ),
     )
     image = models.ImageField(
@@ -120,7 +120,7 @@ class Recipe(models.Model):
         verbose_name='Описание',
         help_text='Опишите рецепт',
         validators=(
-            validators.TwoCharValidator(constants.MIN_TEXT_LENGHT),
+            validators.TwoCharValidator(constants.MIN_TEXT_LENGTH),
         ),
     )
     ingredients = models.ManyToManyField(

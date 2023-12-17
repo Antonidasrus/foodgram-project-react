@@ -266,7 +266,6 @@ class WriteRecipeSerializer(ModelSerializer):
             tags_in_recipe.append(tag)
         return value
 
-    @transaction.atomic
     def create(self, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
@@ -284,7 +283,6 @@ class WriteRecipeSerializer(ModelSerializer):
 
         return recipe
 
-    @transaction.atomic
     def update(self, instance, validated_data):
         if 'tags' in validated_data:
             instance.tags.clear()
