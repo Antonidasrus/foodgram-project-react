@@ -1,3 +1,5 @@
+from rest_framework.permissions import IsAuthenticated
+
 MAX_EMAIL_LENGTH = 254
 MAX_USER_LENGTH = 100
 MAX_PAGE_SIZE = 100
@@ -13,3 +15,15 @@ MAX_COOKING_TIME = 1000
 MIN_AMOUNT = 1
 MAX_AMOUNT = 50000
 MAX_LIMIT = 100
+
+ARGUMENTS_FOR_ACTION_DECORATORS = {
+    'post_del': {
+        'methods': ('post', 'delete',),
+        'detail': True,
+        'permission_classes': (IsAuthenticated,),
+    },
+    'get': {
+        'detail': False,
+        'permission_classes': (IsAuthenticated,),
+    },
+}

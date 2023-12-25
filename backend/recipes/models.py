@@ -125,7 +125,7 @@ class Recipe(models.Model):
     )
     ingredients = models.ManyToManyField(
         Ingredient,
-        through='RecipeIngredientAmount',
+        through='IngredientInRecipe',
         related_name='ingredients_in_recipe',
     )
     tags = models.ManyToManyField(
@@ -160,8 +160,9 @@ class Recipe(models.Model):
         return f'{self.name}, автор {self.author.username}.'
 
 
-class RecipeIngredientAmount(models.Model):
-    """Модель ингредиентов в рецепте"""
+class IngredientInRecipe(models.Model):
+    """Модель ингредиентов в рецепте."""
+
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='Рецепт',
@@ -231,7 +232,8 @@ class AbstractUsersRecipe(models.Model):
 
 
 class FavoriteRecipe(AbstractUsersRecipe):
-    """Модель  избранных рецептов"""
+    """Модель избранных рецептов."""
+
     add_to_favorite_date = models.DateTimeField(
         verbose_name='Дата добавления в избранное',
         auto_now=True,
@@ -245,7 +247,8 @@ class FavoriteRecipe(AbstractUsersRecipe):
 
 
 class Cart(AbstractUsersRecipe):
-    """Модель списка покупок"""
+    """Модель списка покупок."""
+
     add_to_shopping_cart_date = models.DateTimeField(
         verbose_name='Дата добавления в корзину',
         auto_now=True,
