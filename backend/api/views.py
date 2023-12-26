@@ -1,6 +1,6 @@
 from django.db.models import Exists, OuterRef
 from django_filters.rest_framework import DjangoFilterBackend
-from djoser.views import UserViewSet
+from djoser.views import UserViewSet as DjoserUserViewSet
 from recipes.models import Recipe
 from api.serializers import RecipeReadSerializer
 from rest_framework.decorators import action
@@ -20,15 +20,15 @@ from core.pagination import CartPagination, CustomPagination
 from core.permissions import IsAdminOrReadOnly
 from core import services
 
-from api.serializers import (DjoserUserSerializer, IngredientSerializer,
+from api.serializers import (UserSerializer, IngredientSerializer,
                              RecipeReadSerializer, TagSerializer,
                              WriteRecipeSerializer, CartSerializer)
 
 
-class DjoserUserViewSet(UserViewSet):
+class UserViewSet(DjoserUserViewSet):
 
     queryset = User.objects.all()
-    serializer_class = DjoserUserSerializer
+    serializer_class = UserSerializer
     pagination_class = CustomPagination
 
     @action(**ARGUMENTS_FOR_ACTION_DECORATORS.get('post_del'))
