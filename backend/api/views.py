@@ -1,10 +1,14 @@
+from django.db.models import Exists, OuterRef
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
+from recipes.models import Recipe
+from api.serializers import RecipeReadSerializer
 from rest_framework.decorators import action
 from rest_framework.permissions import (
     SAFE_METHODS,
     IsAuthenticatedOrReadOnly
 )
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from recipes.models import Cart, FavoriteRecipe, Ingredient, Recipe, Tag
@@ -16,16 +20,15 @@ from core.pagination import CartPagination, CustomPagination
 from core.permissions import IsAdminOrReadOnly
 from core import services
 
-from api.serializers import (DjoserUserSerializer, IngredientSerializer,
+from api.serializers import (UserSerializer, IngredientSerializer,
                              RecipeReadSerializer, TagSerializer,
                              WriteRecipeSerializer, CartSerializer)
 
 
 class DjoserUserViewSet(UserViewSet):
-    """Наследованный джосер вьюсет"""
 
     queryset = User.objects.all()
-    serializer_class = DjoserUserSerializer
+    serializer_class = UserSerializer
     pagination_class = CustomPagination
 
     @action(**ARGUMENTS_FOR_ACTION_DECORATORS.get('post_del'))
@@ -53,7 +56,6 @@ class DjoserUserViewSet(UserViewSet):
 
 
 class IngredientViewSet(ReadOnlyModelViewSet):
-    """Вьюсет для ингредиентов."""
 
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
@@ -63,7 +65,6 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
 
 class TagViewSet(ReadOnlyModelViewSet):
-    """Вьюсет для тегов."""
 
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
@@ -71,7 +72,6 @@ class TagViewSet(ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(ModelViewSet):
-    """Вьюсет для отображения рецептов."""
 
     queryset = Recipe.objects.all()
     permission_classes = (IsAuthenticatedOrReadOnly | IsAdminOrReadOnly,)
@@ -131,3 +131,19 @@ class RecipeViewSet(ModelViewSet):
         self.serializer_class = CartSerializer
         self.pagination_class = CartPagination
         return services.create_and_download_shopping_cart(request.user)
+
+
+def recipe_list(self, request):
+    recipes = Recipe.objects.all()
+    recipes = recipes.annotate(
+        is_favorited=Exists(
+            FavoriteRecipe.objects.filter(recipe_id=OuterRef('id'),
+                                          user=request.user)
+        ),
+        is_in_shopping_cart=Exists(
+            Cart.objects.filter(recipe_id=OuterRef('id'),
+                                user=request.user)
+        )
+    )
+    serializer = RecipeReadSerializer(recipes, many=True)
+    return Response(serializer.data)
