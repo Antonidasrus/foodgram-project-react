@@ -7,7 +7,8 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.serializers import (IntegerField, ModelSerializer,
                                         PrimaryKeyRelatedField,
-                                        SerializerMethodField)
+                                        SerializerMethodField,
+                                        BooleanField)
 
 from recipes.models import Cart, Ingredient, Recipe, IngredientInRecipe, Tag
 from users.models import User
@@ -146,8 +147,8 @@ class RecipeReadSerializer(ModelSerializer):
 
     author = DjoserUserSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
-    is_favorited = SerializerMethodField()
-    is_in_shopping_cart = SerializerMethodField()
+    is_favorited = BooleanField()
+    is_in_shopping_cart = BooleanField()
     ingredients = SerializerMethodField()
 
     class Meta:
