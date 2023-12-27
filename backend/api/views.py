@@ -133,7 +133,7 @@ class RecipeViewSet(ModelViewSet):
         return services.create_and_download_shopping_cart(request.user)
 
 
-def recipe_list(self, request):
+def recipe_list(request):
     recipes = Recipe.objects.all()
     recipes = recipes.annotate(
         is_favorited=Exists(
