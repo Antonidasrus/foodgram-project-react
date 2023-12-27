@@ -3,21 +3,16 @@ from djoser.serializers import (UserCreateSerializer as
                                 DjoserUserCreateSerializer)
 
 from djoser.serializers import UserSerializer as DjoserUserSerializer
-
 from drf_extra_fields.fields import Base64ImageField
-
 from rest_framework.exceptions import ValidationError
-
 from rest_framework.response import Response
-
 from rest_framework.serializers import (IntegerField, ModelSerializer,
                                         PrimaryKeyRelatedField,
-                                        SerializerMethodField,
-                                        BooleanField)
+                                        SerializerMethodField)
 
 from recipes.models import Cart, Ingredient, Recipe, IngredientInRecipe, Tag
-
 from users.models import User
+from rest_framework.serializers import BooleanField
 
 from core.constants import (MAX_AMOUNT, MAX_COOKING_TIME, MIN_AMOUNT,
                             MIN_COOKING_TIME)
