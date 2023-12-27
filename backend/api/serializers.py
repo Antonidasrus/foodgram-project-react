@@ -6,7 +6,8 @@ from rest_framework.serializers import (IntegerField, ModelSerializer,
                                         PrimaryKeyRelatedField,
                                         SerializerMethodField)
 from rest_framework.status import HTTP_400_BAD_REQUEST
-from recipes.models import Cart, Ingredient, Recipe, IngredientInRecipe, Tag 
+from recipes.models import Cart, Ingredient, Recipe, IngredientInRecipe, Tag
+
 from users.models import User
 from core.constants import (MAX_AMOUNT, MAX_COOKING_TIME, MIN_AMOUNT,
                             MIN_COOKING_TIME)
@@ -35,7 +36,7 @@ class DjoserUserSerializer(UserSerializer):
                   'username', 'first_name',
                   'last_name', 'is_subscribed')
 
-    def get_is_subscribed(self, obj): 
+    def get_is_subscribed(self, obj):
 
         user = self.context['request'].user
         return not (user.is_anonymous or not user.subscriber_user.filter(
@@ -92,7 +93,7 @@ class SubscriptionSerializer(DjoserUserSerializer):
         return data
 
 
-class RecipeShortSerializer(ModelSerializer): 
+class RecipeShortSerializer(ModelSerializer):
 
     image = Base64ImageField()
 
@@ -128,7 +129,7 @@ class IngredientSerializer(ModelSerializer):
         read_only_fields = ('__all__',)
 
 
-class IngredientInRecipeSerializer(ModelSerializer): 
+class IngredientInRecipeSerializer(ModelSerializer):
 
     id = IntegerField(write_only=True)
     amount = IntegerField(min_value=MIN_AMOUNT, max_value=MAX_AMOUNT)
