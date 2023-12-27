@@ -6,10 +6,9 @@ from rest_framework.serializers import (IntegerField, ModelSerializer,
                                         PrimaryKeyRelatedField,
                                         SerializerMethodField)
 from rest_framework.status import HTTP_400_BAD_REQUEST
+
 from recipes.models import Cart, Ingredient, Recipe, IngredientInRecipe, Tag
-
 from users.models import User
-
 from core.constants import (MAX_AMOUNT, MAX_COOKING_TIME, MIN_AMOUNT,
                             MIN_COOKING_TIME)
 
