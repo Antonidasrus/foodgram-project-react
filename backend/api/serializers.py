@@ -1,5 +1,5 @@
 from django.db.models import F
-from djoser.serializers import (UserCreateSerializer as 
+from djoser.serializers import (UserCreateSerializer as
                                 DjoserUserCreateSerializer)
 from djoser.serializers import UserSerializer as DjoserUserSerializer
 from drf_extra_fields.fields import Base64ImageField
