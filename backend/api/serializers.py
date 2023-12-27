@@ -1,5 +1,6 @@
 from django.db.models import F
-from djoser.serializers import UserCreateSerializer
+from djoser.serializers import (UserCreateSerializer as 
+                                DjoserUserCreateSerializer)
 from djoser.serializers import UserSerializer as DjoserUserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework.exceptions import ValidationError
@@ -14,7 +15,7 @@ from core.constants import (MAX_AMOUNT, MAX_COOKING_TIME, MIN_AMOUNT,
                             MIN_COOKING_TIME)
 
 
-class DjoserUserCreateSerializer(UserCreateSerializer):
+class UserCreateSerializer(DjoserUserCreateSerializer):
 
     class Meta:
         model = User
