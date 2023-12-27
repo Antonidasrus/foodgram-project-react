@@ -1,5 +1,6 @@
 from django.db.models import F
-from djoser.serializers import UserCreateSerializer, UserSerializer
+from djoser.serializers import UserCreateSerializer
+from djoser.serializers import UserSerializer as DjoserUserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import (IntegerField, ModelSerializer,
@@ -26,7 +27,7 @@ class DjoserUserCreateSerializer(UserCreateSerializer):
         )
 
 
-class DjoserUserSerializer(UserSerializer):
+class UserSerializer(DjoserUserSerializer):
 
     is_subscribed = SerializerMethodField()
 
