@@ -84,13 +84,11 @@ class SubscriptionSerializer(DjoserUserSerializer):
         user = self.context['request'].user
         if user.subscriber_user.filter(author=author).exists():
             raise ValidationError(
-                detail='Нельзя подписаться дважды!',
-                code=HTTP_400_BAD_REQUEST
+                detail='Нельзя подписаться дважды!'
             )
         if user == author:
             raise ValidationError(
-                detail='Нельзя подписаться на себя!',
-                code=HTTP_400_BAD_REQUEST
+                detail='Нельзя подписаться на себя!'
             )
         return data
 
