@@ -7,7 +7,6 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import (IntegerField, ModelSerializer,
                                         PrimaryKeyRelatedField,
                                         SerializerMethodField)
-from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from recipes.models import Cart, Ingredient, Recipe, IngredientInRecipe, Tag
 from users.models import User
