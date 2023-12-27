@@ -4,6 +4,7 @@ from djoser.serializers import (UserCreateSerializer as
 from djoser.serializers import UserSerializer as DjoserUserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework.exceptions import ValidationError
+from rest_framework.response import Response
 from rest_framework.serializers import (IntegerField, ModelSerializer,
                                         PrimaryKeyRelatedField,
                                         SerializerMethodField)
@@ -38,7 +39,6 @@ class UserSerializer(DjoserUserSerializer):
                   'last_name', 'is_subscribed')
 
     def get_is_subscribed(self, obj):
-
         user = self.context['request'].user
         return not (user.is_anonymous or not user.subscriber_user.filter(
                     author=obj).exists())
@@ -89,7 +89,8 @@ class SubscriptionSerializer(DjoserUserSerializer):
             raise ValidationError(
                 detail='Нельзя подписаться на себя!'
             )
-        return data
+        serializer = SubscriptionSerializer()
+        return Response(serializer.data)
 
 
 class RecipeShortSerializer(ModelSerializer):
