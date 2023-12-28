@@ -79,6 +79,21 @@ class RecipeViewSet(ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
 
+    def get_queryset(self, request):
+        recipes = Recipe.objects.all()
+        recipes = recipes.annotate(
+            is_favorited=Exists(
+                FavoriteRecipe.objects.filter(recipe_id=OuterRef('id'),
+                                              user=request.user)
+            ),
+            is_in_shopping_cart=Exists(
+                Cart.objects.filter(recipe_id=OuterRef('id'),
+                                    user=request.user)
+            )
+        )
+        serializer = RecipeReadSerializer(recipes, many=True)
+        return Response(serializer.data)
+
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
@@ -131,19 +146,3 @@ class RecipeViewSet(ModelViewSet):
         self.serializer_class = CartSerializer
         self.pagination_class = CartPagination
         return services.create_and_download_shopping_cart(request.user)
-
-
-def recipe_list(request):
-    recipes = Recipe.objects.all()
-    recipes = recipes.annotate(
-        is_favorited=Exists(
-            FavoriteRecipe.objects.filter(recipe_id=OuterRef('id'),
-                                          user=request.user)
-        ),
-        is_in_shopping_cart=Exists(
-            Cart.objects.filter(recipe_id=OuterRef('id'),
-                                user=request.user)
-        )
-    )
-    serializer = RecipeReadSerializer(recipes, many=True)
-    return Response(serializer.data)

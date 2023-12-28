@@ -10,7 +10,6 @@ from rest_framework.serializers import (IntegerField, ModelSerializer,
                                         PrimaryKeyRelatedField,
                                         SerializerMethodField)
 
-from api.views import recipe_list
 from recipes.models import Cart, Ingredient, Recipe, IngredientInRecipe, Tag
 from users.models import User
 from rest_framework.serializers import BooleanField
@@ -168,17 +167,6 @@ class RecipeReadSerializer(ModelSerializer):
             'text',
             'cooking_time',
         )
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        request = self.context.get('request')
-        recipes_data = recipe_list(request)
-        recipe_data = next((item for item in
-                            recipes_data if item['id'] == instance.id), None)
-        if recipe_data:
-            data['is_favorited'] = recipe_data['is_favorited']
-            data['is_in_shopping_cart'] = recipe_data['is_in_shopping_cart']
-        return data
 
     def get_is_favorited(self, obj):
         user = self.context['request'].user
