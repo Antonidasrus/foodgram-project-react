@@ -149,8 +149,8 @@ class RecipeReadSerializer(ModelSerializer):
 
     author = DjoserUserSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
-    is_favorited = BooleanField()
-    is_in_shopping_cart = BooleanField()
+    is_favorited = BooleanField(default=False)
+    is_in_shopping_cart = BooleanField(default=False)
     ingredients = SerializerMethodField()
 
     class Meta:
@@ -167,20 +167,6 @@ class RecipeReadSerializer(ModelSerializer):
             'text',
             'cooking_time',
         )
-
-    def get_is_favorited(self, obj):
-        user = self.context['request'].user
-        if user and not user.is_anonymous:
-            related_manager = getattr(user, 'favorites')
-            return related_manager.filter(recipe=obj).exists()
-        return False
-
-    def get_is_in_shopping_cart(self, obj):
-        user = self.context['request'].user
-        if not user.is_anonymous:
-            related_manager = getattr(user, 'shopping_cart')
-            return related_manager.filter(recipe=obj).exists()
-        return False
 
     def get_ingredients(self, obj):
         return (
