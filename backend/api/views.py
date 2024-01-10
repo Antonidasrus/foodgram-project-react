@@ -28,14 +28,12 @@ class UserViewSet(DjoserUserViewSet):
     serializer_class = UserSerializer
     pagination_class = DefaultPagination
 
-    @action(**ARGUMENTS_FOR_ACTION_DECORATORS.get('post'))
+    @action(**ARGUMENTS_FOR_ACTION_DECORATORS.get('post_del'))
     def subscribe(self, request, id):
-        return services.make_subscribe(
-            request=request, user=request.user, author_id=id,
-        )
-
-    @subscribe.mapping.delete
-    def unsubscribe(self, request, id):
+        if request.method == 'POST':
+            return services.make_subscribe(
+                request=request, user=request.user, author_id=id,
+            )
         return services.unsubscribe(
             user=request.user, author_id=id
         )
@@ -88,29 +86,25 @@ class RecipeViewSet(ModelViewSet):
             return RecipeReadSerializer
         return WriteRecipeSerializer
 
-    @action(**ARGUMENTS_FOR_ACTION_DECORATORS.get('post'))
-    def add_favorite(self, request, pk):
-        return services.add_recipe_to_favorite_or_cart(
-            model=FavoriteRecipe, user=request.user, id=pk
-        )
-
-    @add_favorite.mapping.delete
-    def delete_favorite(self, request, pk):
+    @action(**ARGUMENTS_FOR_ACTION_DECORATORS.get('post_del'))
+    def favorite(self, request, pk):
+        if request.method == 'POST':
+            return services.add_recipe_to_favorite_or_cart(
+                model=FavoriteRecipe, user=request.user, id=pk
+            )
         return services.delete_recipe_from_favorite_or_cart(
             model=FavoriteRecipe, user=request.user, id=pk
         )
 
-    @action(**ARGUMENTS_FOR_ACTION_DECORATORS.get('post'))
+    @action(**ARGUMENTS_FOR_ACTION_DECORATORS.get('post_del'))
     def shopping_cart(self, request, pk):
         self.queryset = Cart.objects.all().order_by('-id',)
         self.pagination_class = CartPagination
         self.serializer_class = CartSerializer
-        return services.add_recipe_to_favorite_or_cart(
-            model=Cart, user=request.user, id=pk
-        )
-
-    @shopping_cart.mapping.delete
-    def delete_recipe_from_favorite_or_cart(self, request, pk):
+        if request.method == 'POST':
+            return services.add_recipe_to_favorite_or_cart(
+                model=Cart, user=request.user, id=pk
+            )
         return services.delete_recipe_from_favorite_or_cart(
             model=Cart, user=request.user, id=pk
         )

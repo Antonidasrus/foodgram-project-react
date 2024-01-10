@@ -18,17 +18,12 @@ MAX_LIMIT = 100
 
 ARGUMENTS_FOR_ACTION_DECORATORS = {
     'post': {
-        'methods': ('post',),
+        'methods': ('post', 'delete'),
         'detail': True,
         'permission_classes': (IsAuthenticated,),
     },
     'get': {
         'detail': False,
-        'permission_classes': (IsAuthenticated,),
-    },
-    'del': {
-        'methods': ('delete',),
-        'detail': True,
         'permission_classes': (IsAuthenticated,),
     },
 }
