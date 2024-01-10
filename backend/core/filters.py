@@ -6,13 +6,14 @@ from recipes.models import Ingredient, Recipe, Tag
 
 def get_queryset_filter(queryset, user, value, relation):
     if user.is_anonymous:
-        return None
-    return queryset.filter(**{relation: user})
+        return queryset
+    if bool(value):
+        return queryset.filter(**{relation: user})
+    return queryset.exclude(**{relation: user})
 
 
 class IngredientFilter(FilterSet):
-    """Фильтрация ингредиентов по названию."""
-
+    """Фильтрация ингредиентов по названию"""
     name = filters.CharFilter(method='ingredient_name_filter')
 
     class Meta:
@@ -26,8 +27,7 @@ class IngredientFilter(FilterSet):
 
 
 class RecipeFilter(FilterSet):
-    """Фильтрация рецептов."""
-
+    """Фильтрация рецептов"""
     is_favorited = filters.BooleanFilter(method='is_favorited_filter')
     is_in_shopping_cart = filters.BooleanFilter(
         method='is_in_shopping_cart_filter'

@@ -7,14 +7,14 @@ from rest_framework.serializers import (IntegerField, ModelSerializer,
                                         SerializerMethodField)
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-from recipes.models import Cart, Ingredient, Recipe, IngredientInRecipe, Tag
+from recipes.models import Ingredient, Recipe, RecipeIngredientAmount, Tag
 from users.models import User
 
 from core.constants import (MAX_AMOUNT, MAX_COOKING_TIME, MIN_AMOUNT,
                             MIN_COOKING_TIME)
 
 
-class DjoserUserCreateSerializer(UserCreateSerializer):
+class CustomUserCreateSerializer(UserCreateSerializer):
     """Сериализатор создания пользователя Djoser."""
 
     class Meta:
@@ -28,7 +28,7 @@ class DjoserUserCreateSerializer(UserCreateSerializer):
         )
 
 
-class DjoserUserSerializer(UserSerializer):
+class CustomUserSerializer(UserSerializer):
     """Сериализатор пользователя Djoser."""
 
     is_subscribed = SerializerMethodField()
@@ -45,7 +45,7 @@ class DjoserUserSerializer(UserSerializer):
                     author=obj).exists())
 
 
-class SubscriptionSerializer(DjoserUserSerializer):
+class SubscriptionSerializer(CustomUserSerializer):
     """Сериализатор подписки."""
 
     recipes = SerializerMethodField()
@@ -98,7 +98,6 @@ class SubscriptionSerializer(DjoserUserSerializer):
 
 class RecipeShortSerializer(ModelSerializer):
     """Сериализатор страниц с рецептами."""
-
     image = Base64ImageField()
 
     class Meta:
@@ -123,7 +122,7 @@ class TagSerializer(ModelSerializer):
     class Meta:
         model = Tag
         fields = ('id', 'name', 'color', 'slug',)
-        read_only_fields = '__all__'
+        read_only_fields = ('__all__',)
 
 
 class IngredientSerializer(ModelSerializer):
@@ -135,14 +134,14 @@ class IngredientSerializer(ModelSerializer):
         read_only_fields = ('__all__',)
 
 
-class IngredientInRecipeSerializer(ModelSerializer):
+class RecipeIngredientAmountSerializer(ModelSerializer):
     """Сериализатор игредиентов в рецепте."""
 
     id = IntegerField(write_only=True)
     amount = IntegerField(min_value=MIN_AMOUNT, max_value=MAX_AMOUNT)
 
     class Meta:
-        model = IngredientInRecipe
+        model = RecipeIngredientAmount
         fields = (
             'id',
             'amount',
@@ -152,7 +151,7 @@ class IngredientInRecipeSerializer(ModelSerializer):
 class RecipeReadSerializer(ModelSerializer):
     """Сериализатор страницы рецепта."""
 
-    author = DjoserUserSerializer(read_only=True)
+    author = CustomUserSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
     is_favorited = SerializerMethodField()
     is_in_shopping_cart = SerializerMethodField()
@@ -193,7 +192,7 @@ class RecipeReadSerializer(ModelSerializer):
                 'id',
                 'name',
                 'measurement_unit',
-                amount=F('ingredientinrecipe__amount')
+                amount=F('recipeingredientamount__amount')
             )
         )
 
@@ -201,17 +200,25 @@ class RecipeReadSerializer(ModelSerializer):
 class WriteRecipeSerializer(ModelSerializer):
     """Сериализатор для создания рецепта."""
 
-    ingredients = IngredientInRecipeSerializer(many=True)
+    ingredients = RecipeIngredientAmountSerializer(many=True)
     tags = PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True,
     )
     image = Base64ImageField()
-    author = DjoserUserSerializer(read_only=True)
+    author = CustomUserSerializer(read_only=True)
     cooking_time = IntegerField(
         min_value=MIN_COOKING_TIME,
         max_value=MAX_COOKING_TIME
     )
+
+    def empty_field(self, field, value):
+        if field := value:
+            return field
+        else:
+            raise ValidationError({
+                "{field}": "Выберите что-нибудь!"
+            })
 
     class Meta:
         model = Recipe
@@ -265,8 +272,8 @@ class WriteRecipeSerializer(ModelSerializer):
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags)
 
-        IngredientInRecipe.objects.bulk_create(
-            [IngredientInRecipe(
+        RecipeIngredientAmount.objects.bulk_create(
+            [RecipeIngredientAmount(
                 recipe=recipe,
                 ingredient_id=ingredient['id'],
                 amount=ingredient['amount']
@@ -276,6 +283,19 @@ class WriteRecipeSerializer(ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
+        if 'tags' in validated_data:
+            instance.tags.clear()
+            instance.tags.set(validated_data.pop('tags'))
+        if 'ingredients' in validated_data:
+            RecipeIngredientAmount.objects.filter(recipe=instance).delete()
+            ingredients = validated_data.pop('ingredients')
+            RecipeIngredientAmount.objects.bulk_create(
+                [RecipeIngredientAmount(
+                    recipe=instance,
+                    ingredient_id=ingredient['id'],
+                    amount=ingredient['amount']
+                ) for ingredient in ingredients]
+            )
         return super().update(instance, validated_data)
 
     def to_representation(self, instance):
@@ -285,12 +305,3 @@ class WriteRecipeSerializer(ModelSerializer):
             instance=instance,
             context=context,
         ).data
-
-
-class CartSerializer(ModelSerializer):
-    """Сериализатор для Корзины покупок."""
-
-    class Meta:
-        model = Cart
-        fields = '__all__'
-        ordering = '-add_to_shopping_cart_date'
