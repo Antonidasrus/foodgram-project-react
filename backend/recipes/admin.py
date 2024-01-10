@@ -1,11 +1,11 @@
 from django.contrib import admin
 
 from recipes.models import (Cart, FavoriteRecipe, Ingredient, Recipe,
-                            IngredientInRecipe, Tag)
+                            RecipeIngredientAmount, Tag)
 
 
-class IngredientInRecipeInline(admin.TabularInline):
-    model = IngredientInRecipe
+class RecipeIngredientAmountInline(admin.TabularInline):
+    model = RecipeIngredientAmount
     extra = 1
     min_num = 1
 
@@ -84,7 +84,7 @@ class RecipeAdmin(admin.ModelAdmin):
         'in_favorite_count',
     )
     inlines = (
-        IngredientInRecipeInline,
+        RecipeIngredientAmountInline,
     )
 
     @admin.display(description='Ингредиенты')
@@ -104,8 +104,8 @@ class RecipeAdmin(admin.ModelAdmin):
         return obj.favorites.count()
 
 
-@admin.register(IngredientInRecipe)
-class IngredientInRecipeAdmin(admin.ModelAdmin):
+@admin.register(RecipeIngredientAmount)
+class RecipeIngredientAmountAdmin(admin.ModelAdmin):
     """Админ панель добавления ингредиента в рецепт."""
 
     list_display = (
