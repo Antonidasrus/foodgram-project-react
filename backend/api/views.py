@@ -12,7 +12,7 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from weasyprint import HTML
 
 from recipes.models import (Cart, FavoriteRecipe, Ingredient, Recipe,
-                            RecipeIngredient, Tag)
+                            RecipeIngredientAmount, Tag)
 from users.models import Subscription, User
 
 from core.filters import IngredientFilter, RecipeFilter
@@ -193,7 +193,7 @@ class RecipeViewSet(ModelViewSet):
     def download_shopping_cart(self, request):
         self.queryset = Cart.objects.all().order_by('-id',)
         self.pagination_class = CartPagination
-        ingredients = RecipeIngredient.objects.filter(
+        ingredients = RecipeIngredientAmount.objects.filter(
             recipe__shopping_cart__user=self.request.user).values(
             name=F('ingredient__name'),
             measurement_unit=F('ingredient__measurement_unit')

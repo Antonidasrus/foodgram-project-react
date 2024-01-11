@@ -7,7 +7,7 @@ from rest_framework.serializers import (IntegerField, ModelSerializer,
                                         SerializerMethodField)
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
+from recipes.models import Ingredient, Recipe, RecipeIngredientAmount, Tag
 from users.models import User
 
 from core.constants import (MAX_AMOUNT, MAX_COOKING_TIME, MIN_AMOUNT,
@@ -141,7 +141,7 @@ class RecipeIngredientAmountSerializer(ModelSerializer):
     amount = IntegerField(min_value=MIN_AMOUNT, max_value=MAX_AMOUNT)
 
     class Meta:
-        model = RecipeIngredient
+        model = RecipeIngredientAmount
         fields = (
             'id',
             'amount',
@@ -192,7 +192,7 @@ class RecipeReadSerializer(ModelSerializer):
                 'id',
                 'name',
                 'measurement_unit',
-                amount=F('recipeingredient__amount')
+                amount=F('recipeingredientamount__amount')
             )
         )
 
@@ -272,8 +272,8 @@ class WriteRecipeSerializer(ModelSerializer):
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags)
 
-        RecipeIngredient.objects.bulk_create(
-            [RecipeIngredient(
+        RecipeIngredientAmount.objects.bulk_create(
+            [RecipeIngredientAmount(
                 recipe=recipe,
                 ingredient_id=ingredient['id'],
                 amount=ingredient['amount']
@@ -287,10 +287,10 @@ class WriteRecipeSerializer(ModelSerializer):
             instance.tags.clear()
             instance.tags.set(validated_data.pop('tags'))
         if 'ingredients' in validated_data:
-            RecipeIngredient.objects.filter(recipe=instance).delete()
+            RecipeIngredientAmount.objects.filter(recipe=instance).delete()
             ingredients = validated_data.pop('ingredients')
-            RecipeIngredient.objects.bulk_create(
-                [RecipeIngredient(
+            RecipeIngredientAmount.objects.bulk_create(
+                [RecipeIngredientAmount(
                     recipe=instance,
                     ingredient_id=ingredient['id'],
                     amount=ingredient['amount']
