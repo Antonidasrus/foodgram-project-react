@@ -54,9 +54,9 @@ REST_FRAMEWORK = {
 
 DJOSER = {
     'SERIALIZERS': {
-        'user_create': 'api.serializers.CustomUserCreateSerializer',
-        'user': 'api.serializers.CustomUserSerializer',
-        'current_user': 'api.serializers.CustomUserSerializer',
+        'user_create': 'api.serializers.DjoserUserCreateSerializer',
+        'user': 'api.serializers.DjoserUserSerializer',
+        'current_user': 'api.serializers.DjoserUserSerializer',
     },
     'PERMISSIONS': {
         'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
@@ -92,7 +92,7 @@ DATABASES = {
         'NAME': os.getenv('DB_NAME', 'django'),
         'USER': os.getenv('POSTGRES_USER', 'django'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'django'),
-        'HOST': os.getenv('DB_HOST', 'db'),
+        'HOST': os.getenv('DB_HOST', 'db',),
         'PORT': os.getenv('DB_PORT', 5432)
     }
 }

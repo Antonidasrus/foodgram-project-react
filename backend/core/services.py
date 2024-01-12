@@ -1,7 +1,7 @@
 from io import BytesIO
 
 from django.contrib.auth import get_user_model
-from django.db.models import Sum
+from django.db.models import Sum, Exists, OuterRef
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -9,8 +9,9 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.response import Response
 
-from api.serializers import RecipeShortSerializer, SubscriptionSerializer
-from recipes.models import Recipe, IngredientInRecipe
+from api.serializers import RecipeShortSerializer
+from api.serializers import SubscriptionSerializer
+from recipes.models import Cart, FavoriteRecipe, Recipe, IngredientInRecipe
 from users.models import Subscription
 
 User = get_user_model()
@@ -81,10 +82,10 @@ def delete_recipe_from_favorite_or_cart(model, user, id):
     )
 
 
-def cart_text(self, user, ingredients, date):
+def cart_text(user, ingredients, date):
     text = (
         f'Здравствуйте, {user.first_name}!\n\n'
-        'Вот ваш список покупок на сегодня.\n\n'
+        f'Вот ваш список покупок на сегодня ({date}).\n\n'
         'Нужно купить:\n\n'
     )
     text += '\n'.join([
@@ -110,9 +111,23 @@ def create_and_download_shopping_cart(user):
     html = cart_text(
         user, ingredients, shopping_list_date
     )
-    pdf_file = BytesIO(html)
+    file = BytesIO(html.encode())
     return FileResponse(
-        pdf_file,
+        file,
         as_attachment=True,
-        filename='shopping_list.pdf'
+        filename='shopping_list.txt'
+    )
+
+
+def get_flags(request):
+    recipes = Recipe.objects.all()
+    return recipes.annotate(
+        is_favorited=Exists(
+            FavoriteRecipe.objects.filter(recipe_id=OuterRef('id'),
+                                          user=request.user)
+        ),
+        is_in_shopping_cart=Exists(
+            Cart.objects.filter(recipe_id=OuterRef('id'),
+                                user=request.user)
+        )
     )
